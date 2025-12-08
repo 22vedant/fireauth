@@ -17,44 +17,49 @@ import { Loader2, X } from "lucide-react";
 // import { signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Separator } from "@/components/ui/separator";
 import axios from "axios";
-import useAuthStore from "@/store/useAuthStore";
 
-const page = () => {
+export default function SignUp() {
+    const router = useRouter()
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [username, setUsername] = useState("")
     const [email, setEmail] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("")
     const [password, setPassword] = useState("");
-    const [passwordConfirmation, setPasswordConfirmation] = useState("");
-    const [image, setImage] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const router = useRouter();
+    const [phoneNumber, setPhoneNumber] = useState("");
+    // const [passwordConfirmation, setPasswordConfirmation] = useState("");
+    // const [image, setImage] = useState<File | null>(null);
+    // const [imagePreview, setImagePreview] = useState<string | null>(null);
+    // const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const { user } = useAuthStore();
+
     async function handleSubmit() {
+        const body = {
+            email,
+            password,
+            displayName: firstName + " " + lastName,
+            phoneNumber
+        }
         try {
-            const response = await axios.post('/api/v1/delete-user', user)
-            router.push('/')
+            const response = await axios.post('/api/v1/create-user', body)
+            router.push('/profile')
 
         } catch (error) {
             throw new Error(error.message)
         }
     }
+
     return (
         <div className="flex justify-center items-center min-w-screen min-h-screen">
-            <Card className="z-50 rounded-md max-w-md">
+            <Card className="z-50 rounded-md w-[500px]">
                 <CardHeader>
-                    <CardTitle className="text-lg md:text-xl">Profile</CardTitle>
+                    <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
                     <CardDescription className="text-xs md:text-sm">
-                        Edit your information to update your account
+                        Enter your information to create an account
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="grid gap-4">
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="first-name">First name</Label>
                                 <Input
@@ -79,34 +84,7 @@ const page = () => {
                                     value={lastName}
                                 />
                             </div>
-                            <div></div>
                         </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="username">Username</Label>
-                            <Input
-                                id="username"
-                                placeholder="@xyz"
-                                required
-                                onChange={(e) => {
-                                    setUsername(e.target.value);
-                                }}
-                                value={username}
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="phonenumber">Phone Number</Label>
-                            <Input
-                                id="phonenumber"
-                                placeholder="+91 98901-32123"
-                                required
-                                onChange={(e) => {
-                                    setPhoneNumber(e.target.value);
-                                }}
-                                value={phoneNumber}
-                            />
-                        </div>
-                        <Separator />
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
@@ -120,7 +98,19 @@ const page = () => {
                                 value={email}
                             />
                         </div>
-
+                        <div className="grid gap-2">
+                            <Label htmlFor="phonenumber">Phone Number</Label>
+                            <Input
+                                id="phonenumber"
+                                type="phonenumber"
+                                placeholder="+91 84848-36085"
+                                required
+                                onChange={(e) => {
+                                    setPhoneNumber(e.target.value);
+                                }}
+                                value={phoneNumber}
+                            />
+                        </div>
                         <div className="grid gap-2">
                             <Label htmlFor="password">Password</Label>
                             <Input
@@ -132,41 +122,21 @@ const page = () => {
                                 placeholder="Password"
                             />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Confirm Password</Label>
-                            <Input
-                                id="password_confirmation"
-                                type="password"
-                                value={passwordConfirmation}
-                                onChange={(e) => setPasswordConfirmation(e.target.value)}
-                                autoComplete="new-password"
-                                placeholder="Confirm Password"
-                            />
-                        </div>
                         <Button
                             type="submit"
                             className="w-full"
                             disabled={loading}
+                            onClick={handleSubmit}
                         >
                             {loading ? (
                                 <Loader2 size={16} className="animate-spin" />
                             ) : (
-                                "Update"
+                                "Create an account"
                             )}
                         </Button>
-                        <Separator />
-                        <div className="grid gap-2">
-                            <Label>Delete User</Label>
-                            <Button
-                                variant={"destructive"}
-                                onClick={handleSubmit}
-                            >Delete User</Button>
-                        </div>
                     </div>
                 </CardContent>
             </Card>
         </div>
-    )
-}
-
-export default page
+    );
+}   

@@ -4,7 +4,9 @@ import {
     signOut,
     GithubAuthProvider,
     signInWithPopup,
+    deleteUser
 } from "firebase/auth";
+import type { User } from "firebase/auth";
 import { auth } from "./firebase";
 // import { recaptchaVerifier } from "./firebase";
 
@@ -20,6 +22,10 @@ export const loginWithGithub = () => {
     const provider = new GithubAuthProvider();
     return signInWithPopup(auth, provider);
 };
+
+export const deleteUserF = (user: User) => {
+    deleteUser(user)
+}
 
 // function getPhoneNumberFromUserInput(phoneNumber: string) {
 //     return phoneNumber

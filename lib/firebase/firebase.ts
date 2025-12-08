@@ -1,8 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth, RecaptchaVerifier } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
+import { connectAuthEmulator, getAuth, RecaptchaVerifier } from "firebase/auth";
+import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -17,15 +17,11 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app)
+export const db = getFirestore(app);
+export const functions = getFunctions(app)
 
-// export const initRecaptcha = (auth) => {
-//     if (!window.recaptchaVerifier) {
-//         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-//             'size': 'invisible',
-//             'callback': (response) => {
-//                 // reCAPTCHA solved
-//             }
-//         });
-//     }
-//     return window.recaptchaVerifier;
-// };
+if (process.env.NODE_ENV === "development") {
+    connectFunctionsEmulator(functions, "localhost", 5001)
+    connectAuthEmulator(auth, "http://localhost:9099");
+    connectFirestoreEmulator(db, "localhost", 8080);
+}
