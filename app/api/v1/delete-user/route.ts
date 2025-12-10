@@ -1,27 +1,32 @@
-import { deleteUserF } from "@/lib/firebase/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/firebase/firebase";
-import { collection, doc, deleteDoc } from "firebase/firestore";
-import { getAuth, IdTokenResult, User } from "firebase/auth";
+import { adminAuth } from "../../lib/admin";
+import { getFirestore } from "firebase-admin/firestore"
+export async function GET(req: NextRequest) {
+    try {
+        const authHeader = req.headers.get("authorization");
 
-export async function POST(req: NextRequest) {
-    const auth = getAuth()
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            try {
-                const response = deleteUserF(user)
-
-                return NextResponse.json({
-                    "message": "User Deleted Successfully",
-                })
-            } catch (error: unknown) {
-                throw new Error("Error", error.message)
-            }
-        } else {
-            return NextResponse.json({
-                message: "User not logged in"
-            })
+        if (!authHeader?.startsWith("Bearer ")) {
+            return NextResponse.json(
+                { error: "Missing or invalid Authorization header" },
+                { status: 401 }
+            );
         }
-    })
 
+        const token = authHeader.split(" ")[1];
+
+        const decoded = await adminAuth.verifyIdToken(token);
+        const uid = decoded.user_id;
+
+        await adminAuth.deleteUser(uid);
+
+        await getFirestore().collection("users").doc(uid).delete()
+
+        return NextResponse.json({ success: true, uid });
+    } catch (error: any) {
+        console.error("Error verifying token:", error);
+        return NextResponse.json(
+            { error: error.message ?? "Server Error" },
+            { status: 500 }
+        );
+    }
 }

@@ -1,23 +1,19 @@
 import { create } from "zustand";
 import { auth } from "../lib/firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import type { User } from "firebase/auth";
+interface useAuthStoreState {
+    user: User | undefined,
+    loading: boolean,
+    setUser: (userInfo: User) => void
+    setLoading: (loading: boolean) => void
+}
 
-const useAuthStore = create((set) => ({
-    user: null,
+const useAuthStore = create<useAuthStoreState>()((set) => ({
+    user: undefined,
     loading: true,
-
     setUser: (user) => set({ user }),
-    setLoading: (loading) => set({ loading }),
-
-    listenToAuth: () => {
-        set({ loading: true });
-        return onAuthStateChanged(auth, (user) => {
-            set({ user, loading: false });
-        });
-    },
-}));
-
-// Start listener once when importing
-useAuthStore.getState().listenToAuth();
+    setLoading: (loading) => set({ loading })
+}))
 
 export default useAuthStore;

@@ -129,12 +129,12 @@ export default function SignIn() {
                             type="submit"
                             className="w-full"
                             disabled={loading}
-                            onClick={() => register(email, password)}
+                            onClick={() => login(email, password)}
                         >
                             {loading ? (
                                 <Loader2 size={16} className="animate-spin" />
                             ) : (
-                                "Create an account"
+                                "Sign In"
                             )}
                         </Button>
                         <Separator />

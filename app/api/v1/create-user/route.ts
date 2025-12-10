@@ -1,22 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { register } from "@/lib/firebase/auth";
 import { db } from "@/lib/firebase/firebase";
-import { collection, doc, updateDoc } from "firebase/firestore";
+import { nanoid } from "nanoid"
+import { collection, doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
+import { functions } from "@/lib/firebase/firebase";
 
 export async function POST(req: NextRequest) {
     try {
         const { email, password, displayName, phoneNumber } = await req.json();
         const { user } = await register(email, password);
 
-        const usersRef = collection(db, "users");
-        await updateDoc(doc(usersRef, user.uid), {
-            displayName,
-            phoneNumber,
-            username: displayName + Math.floor(Math.random() * 10000),
-        });
+        const userDoc = {
+            uid: user.uid,
+            email: email,
+            displayName: displayName,
+            photoURL: user.photoURL ?? null,
+            signUpDate: serverTimestamp,
+            username: (displayName?.replace(" ", "_").toLowerCase() ?? "") + nanoid(10),
+            phoneNumber: phoneNumber ?? null,
+            role: "user",
+            isVerified: user.emailVerified,
+            socialLinks: {
+                "github": null,
+                "linkedin": null,
+                "portfolio": null,
+                "twitter": null,
+            }
+        }
+
+        const onUserCreation = httpsCallable(functions, "newOnUserCreation")
+        const response = await onUserCreation({ userDoc })
+
+        // const usersRef = collection(db, "users");
+        // await updateDoc(doc(usersRef, user.uid), userDoc);
 
         return NextResponse.json({
-            "message": "success"
+            "message": "success",
+            data: response.data
         })
     } catch (err: any) {
         console.error(err);

@@ -23,7 +23,7 @@ import SignUp from "./_components/sign-up"
 export function page() {
     return (
         <div className="flex gap-6 justify-center items-center">
-            <Tabs defaultValue="sign-in">
+            <Tabs defaultValue="sign-in" className="space-y-4">
                 <TabsList>
                     <TabsTrigger value="sign-in">Sign In</TabsTrigger>
                     <TabsTrigger value="sign-up">Sign Up</TabsTrigger>

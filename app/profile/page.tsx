@@ -11,15 +11,18 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Loader2, X } from "lucide-react";
-// import { signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import axios from "axios";
+
+import { auth } from "@/lib/firebase/firebase"
+import { onAuthStateChanged } from "firebase/auth";
 import useAuthStore from "@/store/useAuthStore";
+import useAuth from "@/lib/useAuth";
 
 const page = () => {
     const [firstName, setFirstName] = useState("");
@@ -29,14 +32,39 @@ const page = () => {
     const [phoneNumber, setPhoneNumber] = useState("")
     const [password, setPassword] = useState("");
     const [passwordConfirmation, setPasswordConfirmation] = useState("");
-    const [image, setImage] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
-    const { user } = useAuthStore();
-    async function handleSubmit() {
+    // const [loading, setLoading] = useState(false);
+
+    const { user, loading } = useAuth()
+
+
+    async function handleUpdate() {
+        const token = await auth.currentUser?.getIdToken(true)
         try {
-            const response = await axios.post('/api/v1/delete-user', user)
+            const response = await axios.post('/api/v1/update-user', user, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            console.log(response.data)
+        } catch (error) {
+            console.error(error);
+
+        }
+    }
+    async function handleSubmit() {
+        // const auth = getAuth()
+        const token = await auth.currentUser?.getIdToken(true)
+        try {
+            // const response = await axios.post('/api/v1/delete-user', user)
+            const response = await axios.get('/api/v1/delete-user', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            console.log(response.data)
             router.push('/')
 
         } catch (error) {
@@ -146,13 +174,10 @@ const page = () => {
                         <Button
                             type="submit"
                             className="w-full"
-                            disabled={loading}
+                            // disabled={loading}
+                            onClick={handleUpdate}
                         >
-                            {loading ? (
-                                <Loader2 size={16} className="animate-spin" />
-                            ) : (
-                                "Update"
-                            )}
+                            Update
                         </Button>
                         <Separator />
                         <div className="grid gap-2">
